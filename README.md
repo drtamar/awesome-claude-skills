@@ -22,6 +22,9 @@
 >[!Tip]
 >If you use Claude to build web applications, do yourself a favor and use [VibeSec-Skill](https://github.com/BehiSecc/VibeSec-Skill) to avoid getting hacked.
 
+>[!Important]
+>**How to install skills:** Each skill links to its GitHub repository. To install a skill, clone or download the repo and follow its README instructions. Do **not** use `claude.ai/customize/plugins/` URLs with encoded characters (e.g. `%40` for `@`) — these are not valid installation links. Always install directly from the GitHub source.
+
 
 ## 📄 Document Skills  
 - [docx](https://github.com/anthropics/skills/tree/main/skills/docx) - Create, edit, analyze Word docs with tracked changes, comments, formatting.  
