@@ -94,6 +94,7 @@
 ## 📘 Learning & Knowledge  
 - [tapestry](https://github.com/michalparkola/tapestry-skills-for-claude-code/tree/main/tapestry) - Interlink and summarize related documents into knowledge networks.  
 - [ship-learn-next](https://github.com/michalparkola/tapestry-skills-for-claude-code/tree/main/ship-learn-next) - Skill to help iterate on what to build or learn next, based on feedback loops.
+- [camera-confidence-guide](https://github.com/drtamar/awesome-claude-skills/tree/main/camera-confidence-guide) - Interactive on-camera confidence training for aspiring YouTubers. 4-phase coaching flow with daily exercises, progress tracking, and personalized feedback to go from zero confidence to recording-ready.
 
 
 
