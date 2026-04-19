@@ -117,14 +117,14 @@ Follow the layout rules in the **Composition Guidelines** section below.
     </style>
   </defs>
   <!-- Background -->
-  <rect width="1200" height="630" fill="#BACKGROUND_COLOR"/>
+  <rect width="1200" height="630" fill="BACKGROUND_COLOR"/>
   <!-- Headline -->
   <text x="120" y="300" font-family="'FONT_NAME', sans-serif"
-        font-size="80" font-weight="700" fill="#TEXT_COLOR"
+        font-size="80" font-weight="700" fill="TEXT_COLOR"
         letter-spacing="-1.5">HEADLINE TEXT</text>
   <!-- Subheadline -->
   <text x="120" y="380" font-family="'BODY_FONT', sans-serif"
-        font-size="28" fill="#SECONDARY_COLOR">Supporting text here</text>
+        font-size="28" fill="SECONDARY_COLOR">Supporting text here</text>
 </svg>
 ```
 
@@ -147,16 +147,20 @@ Follow the layout rules in the **Composition Guidelines** section below.
   body { width: 1200px; height: 630px; overflow: hidden; }
   .card {
     width: 1200px; height: 630px;
-    background: #BACKGROUND;
+    background: BACKGROUND_COLOR;
     display: flex; align-items: center;
     padding: 80px 120px;
     font-family: 'FONT_NAME', sans-serif;
   }
   .headline {
     font-size: 80px; font-weight: 700;
-    color: #TEXT_COLOR;
+    color: TEXT_COLOR;
     letter-spacing: -1.5px;
     line-height: 1.1;
+  }
+  .sub {
+    font-size: 28px;
+    color: SECONDARY_COLOR;
   }
 </style>
 </head>
@@ -182,18 +186,18 @@ from io import BytesIO
 
 # Canvas
 W, H = 1200, 630
-img = Image.new("RGB", (W, H), color="#BACKGROUND_COLOR")
+img = Image.new("RGB", (W, H), color="BACKGROUND_COLOR")
 draw = ImageDraw.Draw(img)
 
 # Load font (download .ttf from Google Fonts first)
-# font_url = "https://github.com/google/fonts/raw/main/ofl/inter/Inter[slnt,wght].ttf"
+# font_url = "https://github.com/google/fonts/raw/main/ofl/inter/Inter%5Bslnt%2Cwght%5D.ttf"
 # response = requests.get(font_url); font_data = BytesIO(response.content)
 headline_font = ImageFont.truetype("Inter-Bold.ttf", 80)
 body_font = ImageFont.truetype("Inter-Regular.ttf", 28)
 
 # Draw text
-draw.text((120, 260), "HEADLINE TEXT", font=headline_font, fill="#TEXT_COLOR")
-draw.text((120, 380), "Supporting text", font=body_font, fill="#SECONDARY_COLOR")
+draw.text((120, 260), "HEADLINE TEXT", font=headline_font, fill="TEXT_COLOR")
+draw.text((120, 380), "Supporting text", font=body_font, fill="SECONDARY_COLOR")
 
 img.save("output.png", "PNG")
 ```
