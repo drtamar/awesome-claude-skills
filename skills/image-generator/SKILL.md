@@ -26,6 +26,7 @@ strictly.
 1. Read `references/styles.md` to match the requested or detected style
 2. Read `references/fonts.md` to select the right typefaces for that style
 3. Read `references/color-palettes.md` to apply the correct color system
+4. If user references an artist, movement, or medium — read the relevant file in `references/art/`
 
 ---
 
@@ -249,3 +250,18 @@ These rules are **non-negotiable**:
   typography rules, layout rules, and do/don't guidance per style.
 - **`references/color-palettes.md`** — Per-style color palettes, color theory rules, gradient
   recipes, and accessibility contrast guidance.
+
+### Art Repository (`references/art/`)
+
+Read these whenever the user references an artist by name, an art movement, or asks for a
+specific artistic technique or medium. Always check this repository before generating art-inspired images.
+
+- **`references/art/movements.md`** — 20 major art movements from Renaissance to Digital/Glitch:
+  visual signature, exact color palettes, composition rules, and digital replication instructions.
+  Read when user mentions: impressionism, cubism, surrealism, baroque, pop art, minimalism, etc.
+- **`references/art/masters.md`** — 20 influential artists with specific style signatures, exact
+  hex palettes, composition habits, and replication notes. Read when user mentions any artist by
+  name: Monet, Van Gogh, Dalí, Warhol, Klimt, Basquiat, Banksy, Rembrandt, etc.
+- **`references/art/techniques.md`** — Traditional mediums (oil, watercolor, fresco, pastel,
+  printmaking), drawing techniques (sfumato, chiaroscuro, hatching), and historical composition
+  methods (golden ratio, frieze, diagonal). Read when user asks for a specific medium or technique.
