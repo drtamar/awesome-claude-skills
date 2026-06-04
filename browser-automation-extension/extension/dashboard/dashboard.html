@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Claude Browser Automation - Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">C</div>
+      <span class="logo-text">Claude Automation</span>
+    </div>
+    <div class="nav-items">
+      <div class="nav-item active" data-tab="automations">
+        <span class="nav-icon">&#9881;</span> Automations
+      </div>
+      <div class="nav-item" data-tab="scraper">
+        <span class="nav-icon">&#128269;</span> Scraper
+      </div>
+      <div class="nav-item" data-tab="injector">
+        <span class="nav-icon">&#128187;</span> Code Injector
+      </div>
+      <div class="nav-item" data-tab="downloads">
+        <span class="nav-icon">&#11015;</span> Downloads
+      </div>
+      <div class="nav-item" data-tab="history">
+        <span class="nav-icon">&#128340;</span> History
+      </div>
+      <div class="nav-item" data-tab="claude-code">
+        <span class="nav-icon">&#9000;</span> Claude Code
+      </div>
+    </div>
+  </nav>
+
+  <main class="content">
+    <!-- Automations Tab -->
+    <section class="tab-content active" id="tab-automations">
+      <div class="tab-header">
+        <h1>Saved Automations</h1>
+        <button class="btn btn-primary" id="btn-new-automation">+ New Automation</button>
+      </div>
+      <div class="automation-grid" id="automation-grid"></div>
+      <div class="empty-state" id="empty-automations">
+        <div class="empty-icon">&#9881;</div>
+        <h3>No automations yet</h3>
+        <p>Create your first automation from the popup chat or the button above.</p>
+      </div>
+    </section>
+
+    <!-- Scraper Tab -->
+    <section class="tab-content" id="tab-scraper">
+      <div class="tab-header">
+        <h1>Web Scraper</h1>
+      </div>
+      <div class="card">
+        <h3>Quick Scrape</h3>
+        <div class="form-group">
+          <label>Target URL</label>
+          <input type="url" id="scrape-url" placeholder="https://example.com" class="input">
+        </div>
+        <div class="form-group">
+          <label>CSS Selector (optional)</label>
+          <input type="text" id="scrape-selector" placeholder="table, .product-card, article" class="input">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Output Format</label>
+            <select id="scrape-format" class="input">
+              <option value="json">JSON</option>
+              <option value="csv">CSV</option>
+              <option value="text">Plain Text</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Options</label>
+            <label class="checkbox"><input type="checkbox" id="scrape-links" checked> Include Links</label>
+            <label class="checkbox"><input type="checkbox" id="scrape-images"> Include Images</label>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btn-scrape">Scrape Now</button>
+      </div>
+      <div class="card" id="scrape-results-card" style="display:none">
+        <div class="card-header">
+          <h3>Results</h3>
+          <div>
+            <button class="btn btn-small" id="btn-copy-results">Copy</button>
+            <button class="btn btn-small" id="btn-download-results">Download</button>
+          </div>
+        </div>
+        <pre id="scrape-results" class="code-block"></pre>
+      </div>
+    </section>
+
+    <!-- Code Injector Tab -->
+    <section class="tab-content" id="tab-injector">
+      <div class="tab-header">
+        <h1>Code Injector</h1>
+      </div>
+      <div class="card">
+        <div class="form-group">
+          <label>JavaScript</label>
+          <textarea id="inject-js" class="code-editor" rows="10" placeholder="// Your JavaScript code here
+document.querySelectorAll('a').forEach(a => {
+  a.style.color = 'red';
+});"></textarea>
+        </div>
+        <div class="form-group">
+          <label>CSS</label>
+          <textarea id="inject-css" class="code-editor" rows="6" placeholder="/* Your CSS here */
+body { background: #1a1a2e !important; }"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btn-inject-js">Run JavaScript</button>
+          <button class="btn btn-secondary" id="btn-inject-css">Inject CSS</button>
+          <button class="btn btn-danger" id="btn-remove-css">Remove Injected CSS</button>
+        </div>
+        <div id="inject-output" class="code-block" style="display:none; margin-top:12px;"></div>
+      </div>
+      <div class="card">
+        <h3>AI Code Generator</h3>
+        <div class="form-group">
+          <label>Describe what the code should do</label>
+          <textarea id="ai-code-prompt" class="input" rows="3" placeholder="e.g., Hide all ads on this page, Extract all email addresses, Make all images grayscale..."></textarea>
+        </div>
+        <button class="btn btn-primary" id="btn-ai-generate">Generate with Claude</button>
+        <pre id="ai-generated-code" class="code-block" style="display:none; margin-top:12px;"></pre>
+      </div>
+    </section>
+
+    <!-- Downloads Tab -->
+    <section class="tab-content" id="tab-downloads">
+      <div class="tab-header">
+        <h1>Download Manager</h1>
+      </div>
+      <div class="card">
+        <h3>Bulk Download</h3>
+        <div class="form-group">
+          <label>URLs (one per line)</label>
+          <textarea id="download-urls" class="input" rows="6" placeholder="https://example.com/file1.pdf
+https://example.com/file2.zip"></textarea>
+        </div>
+        <button class="btn btn-primary" id="btn-bulk-download">Download All</button>
+      </div>
+      <div class="card">
+        <h3>Page Asset Downloader</h3>
+        <p class="text-muted">Extract and download all assets from the current page.</p>
+        <div class="btn-row">
+          <button class="btn btn-secondary" id="btn-dl-images">All Images</button>
+          <button class="btn btn-secondary" id="btn-dl-links">All Linked Files</button>
+          <button class="btn btn-secondary" id="btn-dl-media">All Media</button>
+        </div>
+      </div>
+      <div class="download-list" id="download-list"></div>
+    </section>
+
+    <!-- History Tab -->
+    <section class="tab-content" id="tab-history">
+      <div class="tab-header">
+        <h1>Execution History</h1>
+        <button class="btn btn-danger" id="btn-clear-history">Clear History</button>
+      </div>
+      <div class="history-list" id="history-list"></div>
+      <div class="empty-state" id="empty-history">
+        <div class="empty-icon">&#128340;</div>
+        <h3>No history yet</h3>
+        <p>Your automation execution history will appear here.</p>
+      </div>
+    </section>
+
+    <!-- Claude Code Tab -->
+    <section class="tab-content" id="tab-claude-code">
+      <div class="tab-header">
+        <h1>Claude Code CLI</h1>
+      </div>
+      <div class="card">
+        <div class="form-group">
+          <label>Working Directory</label>
+          <input type="text" id="cc-workdir" class="input" placeholder="~/projects/my-app" value="">
+        </div>
+        <div class="form-group">
+          <label>Command / Prompt</label>
+          <textarea id="cc-command" class="code-editor" rows="4" placeholder="Describe what you want Claude Code to do..."></textarea>
+        </div>
+        <button class="btn btn-primary" id="btn-cc-run">Run with Claude Code</button>
+        <pre id="cc-output" class="code-block" style="display:none; margin-top:12px;"></pre>
+      </div>
+    </section>
+  </main>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

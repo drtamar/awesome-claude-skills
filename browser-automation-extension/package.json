@@ -1,0 +1,28 @@
+{
+  "name": "claude-browser-automation",
+  "version": "1.0.0",
+  "description": "Chrome extension + local proxy for AI-powered browser automation via Claude Code",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node proxy-server/server.js",
+    "dev": "node --watch proxy-server/server.js",
+    "setup": "bash setup.sh",
+    "test": "node proxy-server/test.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "uuid": "^11.1.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
