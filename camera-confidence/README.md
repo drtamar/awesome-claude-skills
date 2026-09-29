@@ -4,6 +4,8 @@ An interactive on-camera training program for people starting at zero.
 
 **[Open `index.html`](index.html)** — self-contained, offline, saves progress in your browser.
 
+<img src="preview-dark.png" alt="Stage 1 of the training program, showing the Exposure and Conviction tracks with rep counters" width="380">
+
 ## Why this exists
 
 Freezing on camera usually gets treated as one problem: you're not used to being filmed.
