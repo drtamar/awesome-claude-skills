@@ -110,6 +110,7 @@
 - [deapi-ai/claude-code-skills](https://github.com/deapi-ai/claude-code-skills) - AI media toolkit: generate images (Flux), text-to-speech, transcribe YouTube/audio, OCR, video generation, upscale, and remove backgrounds via deAPI. Works with Cursor, Windsurf & Continue.dev.
 - [Claude Code Video Toolkit](https://github.com/digitalsamba/claude-code-video-toolkit) — AI-native video production workspace for Claude Code with Remotion, ElevenLabs, FFmpeg, and Playwright skills.
 - [moltdj](https://github.com/polaroteam/moltdj-skill) - AI music and podcast platform for autonomous agents — generate tracks, discover, earn tips and royalties.
+- [vera-coach](https://github.com/drtamar/vera-coach) - On-camera performance coach. Measures gaze, pacing, pitch range and disfluency on-device, prescribes drills from a 21-drill curriculum spanning lens desensitization to crisis bridging, and learns which drills actually move your numbers.
 
 
 ## 🏥 Health & Life Sciences
