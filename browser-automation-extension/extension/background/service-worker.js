@@ -24,30 +24,44 @@ async function getSettings() {
   const defaults = {
     proxyUrl: PROXY_URL,
     signingSecret: '',
-    enableSigning: false
+    // Signing is always required now — the proxy has no bypass. Kept in
+    // settings for backward compat with older stored prefs.
+    enableSigning: true
   };
   const stored = await chrome.storage.local.get('settings');
   return { ...defaults, ...stored.settings };
 }
 
-async function makeRequest(endpoint, body = {}) {
+async function hmacHex(secret, payload) {
+  const key = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payload));
+  return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Every /api request is signed. The proxy rejects anything unsigned, so a
+// missing secret surfaces as a clear actionable error here.
+async function makeRequest(endpoint, body = {}, method = 'POST') {
   const settings = await getSettings();
-  const url = `${settings.proxyUrl}${endpoint}`;
-  const headers = { 'Content-Type': 'application/json' };
-
-  if (settings.enableSigning && settings.signingSecret) {
-    const ts = Date.now().toString();
-    const data = `${ts}:${JSON.stringify(body)}`;
-    const key = await crypto.subtle.importKey(
-      'raw', new TextEncoder().encode(settings.signingSecret),
-      { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
-    );
-    const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(data));
-    headers['x-signature'] = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
-    headers['x-timestamp'] = ts;
+  if (!settings.signingSecret) {
+    throw new Error('No signing secret set. Open the extension Options page and paste the SIGNING_SECRET from your proxy .env file.');
   }
+  const url = `${settings.proxyUrl}${endpoint}`;
+  const ts = Date.now().toString();
+  const bodyString = ['GET', 'DELETE'].includes(method) ? '' : JSON.stringify(body);
+  // Canonical payload MUST match the proxy: ts:METHOD:path:body
+  const payload = `${ts}:${method.toUpperCase()}:${endpoint}:${bodyString}`;
+  const sig = await hmacHex(settings.signingSecret, payload);
 
-  const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json', 'x-signature': sig, 'x-timestamp': ts }
+  };
+  if (!['GET', 'DELETE'].includes(method)) opts.body = JSON.stringify(body);
+
+  const res = await fetch(url, opts);
   if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`);
   return res.json();
 }
@@ -264,9 +278,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         }
 
         case 'get_automations': {
-          const settings = await getSettings();
-          const res = await fetch(`${settings.proxyUrl}/api/automations`);
-          sendResponse(await res.json());
+          const result = await makeRequest('/api/automations', {}, 'GET');
+          sendResponse(result);
+          break;
+        }
+
+        case 'delete_automation': {
+          const result = await makeRequest(`/api/automation/${msg.id}`, {}, 'DELETE');
+          sendResponse(result);
           break;
         }
 

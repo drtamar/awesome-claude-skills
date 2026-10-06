@@ -1,3 +1,11 @@
+// Automation names, scraped content and history entries can originate from
+// model output or scraped pages. Escape before any innerHTML write.
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
 document.querySelectorAll('.nav-item').forEach(item => {
   item.addEventListener('click', () => {
     document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -22,16 +30,16 @@ async function loadAutomations() {
     grid.style.display = 'grid';
     empty.style.display = 'none';
     grid.innerHTML = resp.automations.map(a => `
-      <div class="automation-card" data-id="${a.id}">
-        <h4>${a.name}</h4>
+      <div class="automation-card" data-id="${esc(a.id)}">
+        <h4>${esc(a.name)}</h4>
         <p>${a.steps?.length || 0} steps</p>
         <div class="meta">
           <span>${new Date(a.created).toLocaleDateString()}</span>
           <span>${a.runs?.length || 0} runs</span>
         </div>
         <div style="margin-top:10px;display:flex;gap:6px">
-          <button class="btn btn-primary btn-small run-auto" data-id="${a.id}">Run</button>
-          <button class="btn btn-danger btn-small del-auto" data-id="${a.id}">Delete</button>
+          <button class="btn btn-primary btn-small run-auto" data-id="${esc(a.id)}">Run</button>
+          <button class="btn btn-danger btn-small del-auto" data-id="${esc(a.id)}">Delete</button>
         </div>
       </div>
     `).join('');
@@ -50,9 +58,7 @@ async function loadAutomations() {
     grid.querySelectorAll('.del-auto').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
-        const settings = await chrome.storage.local.get('settings');
-        const proxyUrl = settings.settings?.proxyUrl || 'http://127.0.0.1:3456';
-        await fetch(`${proxyUrl}/api/automation/${btn.dataset.id}`, { method: 'DELETE' });
+        await chrome.runtime.sendMessage({ type: 'delete_automation', id: btn.dataset.id });
         loadAutomations();
       });
     });
@@ -184,7 +190,7 @@ function appendDownloadItem(url) {
   const list = document.getElementById('download-list');
   const item = document.createElement('div');
   item.className = 'download-item';
-  item.innerHTML = `<span style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80%">${url}</span><span class="action-status status-success">downloading</span>`;
+  item.innerHTML = `<span style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80%">${esc(url)}</span><span class="action-status status-success">downloading</span>`;
   list.appendChild(item);
 }
 
@@ -234,10 +240,10 @@ function renderHistory() {
     list.innerHTML = history.map(h => `
       <div class="history-item">
         <div>
-          <div class="action-name">${h.name}</div>
+          <div class="action-name">${esc(h.name)}</div>
           <div class="action-time">${new Date(h.time).toLocaleString()}</div>
         </div>
-        <span class="action-status ${h.status === 'success' ? 'status-success' : 'status-error'}">${h.status}</span>
+        <span class="action-status ${h.status === 'success' ? 'status-success' : 'status-error'}">${esc(h.status)}</span>
       </div>
     `).join('');
   });

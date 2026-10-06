@@ -20,7 +20,8 @@ function showStatus(msg, type) {
 
 chrome.storage.local.get('settings', ({ settings = {} }) => {
   fields.proxyUrl.value = settings.proxyUrl || 'http://127.0.0.1:3456';
-  fields.enableSigning.checked = settings.enableSigning || false;
+  // Signing is always on now — the proxy has no bypass.
+  fields.enableSigning.checked = true;
   fields.signingSecret.value = settings.signingSecret || '';
   fields.timeout.value = settings.timeout || 30000;
   fields.maxConcurrent.value = settings.maxConcurrent || 5;
@@ -28,20 +29,16 @@ chrome.storage.local.get('settings', ({ settings = {} }) => {
   fields.notifyComplete.checked = settings.notifyComplete !== false;
   fields.enableDownloads.checked = settings.enableDownloads !== false;
   fields.downloadDir.value = settings.downloadDir || 'claude-browser';
-  toggleSigningSecret();
 });
 
-fields.enableSigning.addEventListener('change', toggleSigningSecret);
-
-function toggleSigningSecret() {
-  document.getElementById('signing-secret-group').style.display =
-    fields.enableSigning.checked ? 'block' : 'none';
-}
-
 document.getElementById('btn-save').addEventListener('click', () => {
+  if (!fields.signingSecret.value) {
+    showStatus('Signing secret is required. Copy SIGNING_SECRET from the proxy .env file.', 'error');
+    return;
+  }
   const settings = {
     proxyUrl: fields.proxyUrl.value || 'http://127.0.0.1:3456',
-    enableSigning: fields.enableSigning.checked,
+    enableSigning: true,
     signingSecret: fields.signingSecret.value,
     timeout: parseInt(fields.timeout.value) || 30000,
     maxConcurrent: parseInt(fields.maxConcurrent.value) || 5,

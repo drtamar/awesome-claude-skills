@@ -1,16 +1,36 @@
 export class ClaudeAPI {
-  constructor(proxyUrl = 'http://127.0.0.1:3456') {
+  // signingSecret is required: the proxy rejects unsigned requests. Pass the
+  // same value as SIGNING_SECRET in the proxy .env file.
+  constructor(proxyUrl = 'http://127.0.0.1:3456', signingSecret = '') {
     this.proxyUrl = proxyUrl;
+    this.signingSecret = signingSecret;
     this.sessionId = null;
     this.ws = null;
   }
 
-  async request(endpoint, body = {}) {
-    const res = await fetch(`${this.proxyUrl}${endpoint}`, {
-      method: endpoint.startsWith('/api/') && !body._get ? 'POST' : 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      body: body._get ? undefined : JSON.stringify(body)
-    });
+  async #hmac(payload) {
+    if (!this.signingSecret) {
+      throw new Error('signingSecret is required (paste SIGNING_SECRET from the proxy .env).');
+    }
+    const key = await crypto.subtle.importKey(
+      'raw', new TextEncoder().encode(this.signingSecret),
+      { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+    );
+    const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payload));
+    return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async request(endpoint, body = {}, method = 'POST') {
+    const ts = Date.now().toString();
+    const bodyString = ['GET', 'DELETE'].includes(method) ? '' : JSON.stringify(body);
+    const sig = await this.#hmac(`${ts}:${method.toUpperCase()}:${endpoint}:${bodyString}`);
+    const opts = {
+      method,
+      headers: { 'Content-Type': 'application/json', 'x-signature': sig, 'x-timestamp': ts }
+    };
+    if (!['GET', 'DELETE'].includes(method)) opts.body = JSON.stringify(body);
+
+    const res = await fetch(`${this.proxyUrl}${endpoint}`, opts);
     if (!res.ok) throw new Error(`API ${res.status}: ${await res.text()}`);
     return res.json();
   }
@@ -23,11 +43,7 @@ export class ClaudeAPI {
 
   async chat(message, pageContext = null) {
     if (!this.sessionId) await this.createSession();
-    return this.request('/api/chat', {
-      sessionId: this.sessionId,
-      message,
-      pageContext
-    });
+    return this.request('/api/chat', { sessionId: this.sessionId, message, pageContext });
   }
 
   async runClaudeCode(command, workDir) {
@@ -39,12 +55,11 @@ export class ClaudeAPI {
   }
 
   async getAutomations() {
-    const res = await fetch(`${this.proxyUrl}/api/automations`);
-    return res.json();
+    return this.request('/api/automations', {}, 'GET');
   }
 
   async deleteAutomation(id) {
-    await fetch(`${this.proxyUrl}/api/automation/${id}`, { method: 'DELETE' });
+    return this.request(`/api/automation/${id}`, {}, 'DELETE');
   }
 
   connectWebSocket(onMessage) {
@@ -65,11 +80,10 @@ export class ClaudeAPI {
       });
       await new Promise((r) => { this.ws.onopen = r; });
     }
-    this.ws.send(JSON.stringify({
-      type: 'stream_chat',
-      sessionId: this.sessionId,
-      message
-    }));
+    // Each WS message is individually signed: ts:WS:sessionId:message
+    const ts = Date.now().toString();
+    const sig = await this.#hmac(`${ts}:WS:${this.sessionId}:${message}`);
+    this.ws.send(JSON.stringify({ type: 'stream_chat', sessionId: this.sessionId, message, ts, sig }));
   }
 
   async healthCheck() {

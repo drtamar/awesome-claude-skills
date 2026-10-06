@@ -15,7 +15,7 @@ export const Storage = {
   async getSettings() {
     return this.get('settings', {
       proxyUrl: 'http://127.0.0.1:3456',
-      enableSigning: false,
+      enableSigning: true,
       signingSecret: '',
       timeout: 30000,
       maxConcurrent: 5,

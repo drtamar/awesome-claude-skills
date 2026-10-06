@@ -20,11 +20,20 @@ async function checkConnection() {
   return false;
 }
 
+// Model output and scraped page text are untrusted — escape HTML first, then
+// apply lightweight formatting that only wraps already-escaped content, so
+// nothing in a response can inject markup or scripts.
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+  ));
+}
+
 function addMessage(text, role) {
   const msg = document.createElement('div');
   msg.className = `message ${role}`;
 
-  let html = text
+  let html = escapeHtml(text)
     .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
     .replace(/`([^`]+)`/g, '<code>$1</code>')
     .replace(/\n/g, '<br>');

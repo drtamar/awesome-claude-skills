@@ -40,13 +40,15 @@
       <label>Proxy URL</label>
       <input type="url" id="proxy-url" class="input" placeholder="http://127.0.0.1:3456">
     </div>
-    <label class="checkbox">
-      <input type="checkbox" id="enable-signing"> Enable request signing
-    </label>
-    <div class="form-group" id="signing-secret-group" style="display:none">
-      <label>Signing Secret</label>
-      <input type="password" id="signing-secret" class="input" placeholder="Must match SIGNING_SECRET in .env">
+    <div class="form-group">
+      <label>Signing Secret (required)</label>
+      <input type="password" id="signing-secret" class="input" placeholder="Paste SIGNING_SECRET from the proxy .env">
+      <p style="font-size:11px;color:#777;margin-top:6px">
+        The proxy rejects every unsigned request. This must exactly match
+        <code>SIGNING_SECRET</code> in your proxy <code>.env</code> file.
+      </p>
     </div>
+    <input type="checkbox" id="enable-signing" checked hidden>
   </div>
 
   <div class="section">
